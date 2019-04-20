@@ -16,7 +16,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COL1 = "ID";
     private static final String COL2 = "name";
 
-    public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 
