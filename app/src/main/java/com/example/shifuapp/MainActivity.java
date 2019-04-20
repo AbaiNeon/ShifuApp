@@ -34,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
         listv1.setAdapter(adapter);
 
+//        Toast toast = Toast.makeText(MainActivity.this, "Hello Android 7", Toast.LENGTH_LONG);
+//        toast.setGravity(Gravity.TOP,0,0);
+//        toast.show();
+
         listv1.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id)
@@ -45,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
 
     }
 
