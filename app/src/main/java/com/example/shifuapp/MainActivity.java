@@ -1,12 +1,11 @@
 package com.example.shifuapp;
 
 import android.content.ContentValues;
-import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -15,50 +14,52 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    Button btnAddList;
+    Button btnRead;
+
     DBHelper dbHelper;
-    String[] values = null;
-    ArrayList<String> list = null;
+    ArrayList<String> names = null;
+    ArrayList<String> addresses = null;
+    ListView listv1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ListView listv1 = (ListView)findViewById(R.id.listView1);
+        listv1 = (ListView)findViewById(R.id.listView1);
         //RecyclerView recv1 = (RecyclerView)findViewById(R.id.recView1);
-        Button btnAddList = (Button)findViewById(R.id.btnAddList);
+        btnAddList = (Button)findViewById(R.id.btnAddList);
+        btnRead = (Button)findViewById(R.id.btnRead);
 
         dbHelper = new DBHelper(this);
 
         btnAddList.setOnClickListener(this);
+        btnRead.setOnClickListener(this);
 
-        list = new ArrayList<String>();
-        list.add("Windows");
-        list.add("WebOS");
-        list.add("Linux");
+        names = new ArrayList<String>();
+        addresses = new ArrayList<String>();
+        names.add("Name1");
+        names.add("Name2");
+        names.add("Name3");
 
-        values = new String[] { "Android", "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-                "Android", "iPhone", "WindowsMobile" };
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
-        listv1.setAdapter(adapter);
+        addresses.add("Address1");
+        addresses.add("Address2");
+        addresses.add("Address3");
 
 
 
-        listv1.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id)
-            {
-                String selectedItem = list.get(position);
-
-                Intent intent = new Intent(getApplicationContext(), Main2Activity.class);
-                intent.putExtra("text", selectedItem);
-                startActivity(intent);
-            }
-        });
+//        listv1.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View v, int position, long id)
+//            {
+//                String selectedItem = names.get(position);
+//
+//                Intent intent = new Intent(getApplicationContext(), Main2Activity.class);
+//                intent.putExtra("text", selectedItem);
+//                startActivity(intent);
+//            }
+//        });
 
     }
 
@@ -70,19 +71,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (v.getId())
         {
+            //из массива в БД
             case R.id.btnAddList:
-                for (int i = 0; i < list.size(); i++){
-                    contentValues.put("name", list.get(i));
-                    database.insert("Table1",null,contentValues);
-                    contentValues.clear();
-                }
+                contentValues.put("name", "name1");
+                contentValues.put("address", "address1");
 
-                Toast toast = Toast.makeText(MainActivity.this, "List added", Toast.LENGTH_LONG);
+//                for (int i = 0; i < names.size(); i++){
+//                    contentValues.put("name", names.get(i));
+//                    contentValues.put("address", addresses.get(i));
+//
+//
+//
+//                    database.insert("Addresses",null,contentValues);
+//                    //contentValues.clear();
+//                }
+
+                Toast toast = Toast.makeText(MainActivity.this, "List added", Toast.LENGTH_SHORT);
                 //toast.setGravity(Gravity.TOP,0,0);
                 toast.show();
 
                 break;
 
+            //из БД в ListView
+            case R.id.btnRead:
+                Toast.makeText(MainActivity.this, "reading...", Toast.LENGTH_SHORT).show();
+
+                Cursor cursor = database.query("Addresses",null,null,null,null,null,null);
+                if (cursor.moveToFirst()){
+                    Toast.makeText(MainActivity.this, "cursor not empty", Toast.LENGTH_LONG).show();
+
+                    int idIndex = cursor.getColumnIndex("_id");
+                    int nameIndex = cursor.getColumnIndex("name");
+                    int addressIndex = cursor.getColumnIndex("address");
+
+                    ArrayList<String> tmp = new ArrayList<String>();
+                    do {
+                        tmp.add(cursor.getString(nameIndex));
+
+                    } while (cursor.moveToNext());
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tmp);
+                    listv1.setAdapter(adapter);
+                }else   {
+                    Toast toast2 = Toast.makeText(MainActivity.this, "cursor empty", Toast.LENGTH_LONG);
+                    //toast.setGravity(Gravity.TOP,0,0);
+                    toast2.show();
+                }
+
+                cursor.close();
+                break;
         }
 
         dbHelper.close();
